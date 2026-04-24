@@ -13,7 +13,7 @@ ml load hwloc
 ml load prun
 ml load ucx
 
-source /software/compilers/intel-oneapi/2025.2.1/setvars.sh
+source /software/compilers/intel-oneapi/2025.2.1/setvars.sh --force
 
 # export env
 export CC=icx
@@ -236,17 +236,17 @@ cd ARWpost
 cd /ARWpost/src
 cd src
 nano Makefile
-sesuaikan baris ini dengan menjadi seperti ini (dihapus dan dipastekan dengan ini):
+#sesuaikan baris ini dengan menjadi seperti ini (dihapus dan dipastikan dengan ini):
 -L$(NETCDF)/lib -lnetcdf -lnetcdff -I$(NETCDF)/include -lnetcdf
-lalu save dan keluar ``(Ctrl + O -> enter -> Ctrl + X`
+#lalu save dan keluar ``(Ctrl + O -> enter -> Ctrl + X`
 cd ..
 cd /ARWpost
 nano configure.arwp
-sesuaikan baris ini dengan menjadi seperti ini:
+#sesuaikan baris ini dengan menjadi seperti ini:
 FFLAGS = -ffree-form -O -fno-second-underscore -fconvert=big-endian -frecord-marker=4 -fallow-argument-mismatch
 CFLAGS = -fPIC -m64
 CPP = /lib/cpp -P -traditional
-lalu save dan keluar
+#lalu save dan keluar
 ./compile && ls -ls *.exe
 >>>pastikan tercreate: ARWpost.exe -> src/ARWpost.exe
 
@@ -258,7 +258,7 @@ cd TASK
 #Simpan kode dibawah ini sebagai script mkdir_kerja.sh
 nano mkdir_kerja.sh
 
-Masukan kode dibawah ini dan simpan Ctrl+O -> Enter
+#Masukan kode dibawah ini dan simpan Ctrl+O -> Enter
     #!/bin/bash
     export usr=~
     cd $usr
@@ -307,10 +307,11 @@ chmod +x mkdir_kerja.sh
 
 ./mkdir_kerja.sh
 sudo chmod +x make_folder_kerja
-Running WRF di WSL WIndows 10#### Error di ungrib.exe
+
+# Jika running WRF#### Error di ungrib.exe
 ./ungrib.exe: error while loading shared libraries: libpng12.so.0 cannot open shared object file: No such file or directory
 How to fix it:
-sudo ln -sf /home/habib/WRF/LIBRARIES/grib2/lib/libpng12.so.0 /usr/lib/x86_64-linux-gnu/libpng12.so.0
+sudo ln -sf /home/abdul-habib/installer_wrf/libraries/lib/libpng12.so.0 /usr/lib/x86_64-linux-gnu/libpng12.so.0
 
 
 
