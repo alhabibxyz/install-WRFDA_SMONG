@@ -30,7 +30,7 @@ export CFLAGS="-fPIC -fPIE -O3 -Wno-implicit-function-declaration -Wno-incompati
 export FFLAGS=""
 export FCFLAGS=""
 export CXXFLAGS="-Wall -DHAVE_ISATTY"
-export DIR=/home/abdul-habib/installer_wrf/libraries
+export DIR=/scratch/dmu/installer_wrf/libraries
 
 ### Instal libraries
 # Zlib 
@@ -39,7 +39,7 @@ cd /home/abdul-habib/installer_wrf/libraries
 wget -c https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
 tar xvzf zlib-1.3.1.tar.gz
 cd zlib-1.3.1
-CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/home/abdul-habib/installer_wrf/libraries
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/scratch/dmu/installer_wrf/libraries
 make
 make install
 
@@ -47,7 +47,7 @@ make install
 wget -c https://download.sourceforge.net/libpng/libpng-1.6.39.tar.gz
 tar xvzf libpng-1.6.39.tar.gz
 cd libpng-1.6.39
-CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/home/abdul-habib/installer_wrf/libraries
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/scratch/dmu/installer_wrf/libraries
 make
 make install
 
@@ -55,9 +55,9 @@ make install
 wget -c https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compile_tutorial/tar_files/jasper-1.900.1.tar.gz
 tar xvzf jasper-1.900.1.tar.gz
 cd jasper-1.900.1
-export LDFLAGS=-L/home/abdul-habib/installer_wrf/libraries/lib
-export CPPFLAGS=-I/home/abdul-habib/installer_wrf/libraries/include
-CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx CFLAGS="-O3 -fPIC -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration -Wno-error=incompatible-function-pointer-types -Wno-incompatible-function-pointer-types" ./configure --prefix=/home/abdul-habib/installer_wrf/libraries
+export LDFLAGS=-L/scratch/dmu/installer_wrf/libraries/lib
+export CPPFLAGS=-I/scratch/dmu/installer_wrf/libraries/include
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx CFLAGS="-O3 -fPIC -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration -Wno-error=incompatible-function-pointer-types -Wno-incompatible-function-pointer-types" ./configure --prefix=/scratch/dmu/installer_wrf/libraries
 make
 make install
 
@@ -67,8 +67,8 @@ wget -c https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.6/hdf5-1.14
 tar xvzf hdf5-1.14.6.tar.gz
 cd hdf5-1.14.6
 export CFLAGS="-O3 -fPIC -Wno-unused-command-line-argument -Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types"
-export LDFLAGS="-L/home/abdul-habib/installer_wrf/libraries/lib -Wl,-rpath,/home/abdul-habib/installer_wrf/libraries/lib"
-CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/home/abdul-habib/installer_wrf/libraries --with-zlib=/home/abdul-habib/installer_wrf/libraries --enable-hl --enable-fortran --enable-parallel
+export LDFLAGS="-L/scratch/dmu/installer_wrf/libraries/lib -Wl,-rpath,/scratch/dmu/installer_wrf/libraries/lib"
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/scratch/dmu/installer_wrf/libraries --with-zlib=/scratch/dmu/installer_wrf/libraries --enable-hl --enable-fortran --enable-parallel
 make
 make install
 
@@ -77,7 +77,7 @@ wget -c https://parallel-netcdf.github.io/Release/pnetcdf-1.14.1.tar.gz
 tar xvzf pnetcdf-1.14.1.tar.gz
 cd pnetcdf-1.14.1
 CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx \
-./configure --prefix=/home/abdul-habib/installer_wrf/libraries --enable-static
+./configure --prefix=/scratch/dmu/installer_wrf/libraries --enable-static
 make
 make install
 
@@ -126,8 +126,8 @@ mkdir $BIN
 cp Makefile.cpl Makefile
 
 #edit Makefile (nanti dirapihin)
-sed -i '193s|-lnetcdff -lnetcdf| -L/home/abdul-habib/installer_wrf/libraries/lib -lnetcdff -lnetcdf -lhdf5hl_fortran -lhdf5_fortran -lhdf5_hl -lhdf5 -ljpeg -lm -lz -lcurl|g' /home/abdul-habib/installer_wrf/libraries/unduh_libraries/ioapi/Makefile
-sed -i '210s|${IODIR}/Makefile ${TOOLDIR}/Makefile| |g' /home/abdul-habib/installer_wrf/libraries/unduh_libraries/ioapi/Makefile
+sed -i '193s|-lnetcdff -lnetcdf| -L/scratch/dmu/installer_wrf/libraries/lib -lnetcdff -lnetcdf -lhdf5hl_fortran -lhdf5_fortran -lhdf5_hl -lhdf5 -ljpeg -lm -lz -lcurl|g' /scratch/dmu/installer_wrf/libraries/unduh_libraries/ioapi/Makefile
+sed -i '210s|${IODIR}/Makefile ${TOOLDIR}/Makefile| |g' /scratch/dmu/installer_wrf/libraries/unduh_libraries/ioapi/Makefile
 # edit file 
 vi ioapi/Makeinclude.Linux2_x86_64ifort
 # ubah bagian
@@ -184,11 +184,11 @@ DM_CC           =       mpiicx -cc=$(SCC)
 >>> pastikan terinstall : ndown.exe, real.exe, tc.exe, wrf.exe.
 
 ##Compile WPS
-export WRF_DIR=/home/abdul-habib/installer_wrf/WRF
-export jasper=/home/abdul-habib/installer_wrf/libraries
-export JASPERLIB=/home/abdul-habib/installer_wrf/libraries/lib
-export JASPERINC=/home/abdul-habib/installer_wrf/libraries/include
-export NETCDF=/home/abdul-habib/installer_wrf/libraries
+export WRF_DIR=/scratch/dmu/installer_wrf/WRF
+export jasper=/scratch/dmu/installer_wrf/libraries
+export JASPERLIB=/scratch/dmu/installer_wrf/libraries/lib
+export JASPERINC=/scratch/dmu/installer_wrf/libraries/include
+export NETCDF=/scratch/dmu/installer_wrf/libraries
 export PATH=$NETCDF/bin:$PATH
 export LD_LIBRARY_PATH=$NETCDF/lib:$LD_LIBRARY_PATH
 ./configure
@@ -206,8 +206,8 @@ git clone --recurse-submodule https://github.com/wrf-model/WRF.git WRFPLUS
 cd WRFPLUS
 ./clean -aa
 
-export NETCDF=/home/abdul-habib/installer_wrf/libraries
-export HDF5=/home/abdul-habib/installer_wrf/libraries
+export NETCDF=/scratch/dmu/installer_wrf/libraries
+export HDF5=/scratch/dmu/installer_wrf/libraries
 ./configure wrfplus
 # pilih 40
 # edit configure.wrf
@@ -220,12 +220,12 @@ ls -ls main/*.exe
 git clone --recurse-submodule https://github.com/wrf-model/WRF.git WRFDA
 cd WRFDA
 ./clean -aa
-export DIR=/home/abdul-habib/installer_wrf/libraries
+export DIR=/scratch/dmu/installer_wrf/libraries
 export NETCDF=$DIR
 export HDF5=$DIR
 export PATH=$DIR/bin:$PATH
 export LD_LIBRARY_PATH=$DIR/lib:$LD_LIBRARY_PATH
-export WRFPLUS_DIR=/home/abdul-habib/installer_wrf/WRFPLUS
+export WRFPLUS_DIR=/scratch/dmu/installer_wrf/WRFPLUS
 
 ./configure wrfda
 # pilih 78
@@ -235,6 +235,27 @@ export WRFPLUS_DIR=/home/abdul-habib/installer_wrf/WRFPLUS
 #atau dengan
 ./compile all_wrfvar && ls -ls var/build/*.exe
 >>> pastikan terinstal: da_update_bc.exe, da_wrfvar.exe, gen_be*
+
+##Compile WRF-Hydro
+git clone https://github.com/NCAR/wrf_hydro_nwm_public.git
+mv wrf_hydro_nwm_public WRF_HYDRO
+cd WRF_HYDRO
+export WRF_DIR=/home/abdul-habib/installer_wrf/WRF
+export HYDRO_DIR=/home/abdul-habib/installer_wrf/WRF_HYDRO
+
+export NETCDF=/home/abdul-habib/installer_wrf/libraries
+export LD_LIBRARY_PATH=$NETCDF/lib:$LD_LIBRARY_PATH
+cd $WRF_DIR
+./clean -a
+./configure
+
+##Edit configure.wrf:
+WRF_HYDRO = 1
+cd $HYDRO_DIR/src
+export FC=mpiifx
+export CC=mpiicx
+./compile_offline_NoahMP.sh ##uncoupled
+./compile_coupled.sh ##coupled
 
 
 ##Compile ARWpost
@@ -279,40 +300,40 @@ nano mkdir_kerja.sh
     mkdir output
     mkdir wrf
     cd wrf
-    ln -sf /home/abdul-habib/installer_wrf/WRF/run/* .
-    ln -sf /home/abdul-habib/installer_wrf/WPS/link_grib.csh && ln -sf /home/abdul-habib/installer_wrf/WPS/geogrid && ln -sf /home/abdul-habib/installer_wrf/WPS/geogrid/geogrid.exe && ln -sf /home/abdul-habib/installer_wrf/WPS/metgrid && ln -sf /home/abdul-habib/installer_wrf/WPS/metgrid/metgrid.exe && ln -sf /home/abdul-habib/installer_wrf/WPS/ungrib && ln -sf /home/abdul-habib/installer_wrf/WPS/ungrib/ungrib.exe 
-    cp /home/abdul-habib/installer_wrf/WPS/namelist.wps /home/abdul-habib/installer_wrf/WPS/util/plotgrids_new.ncl .
-    ln -sf /home/abdul-habib/installer_wrf/WPS/ungrib/Variable_Tables/Vtable.ECMWF Vtable
+    ln -sf /scratch/dmu/installer_wrf/WRF/run/* .
+    ln -sf /scratch/dmu/installer_wrf/WPS/link_grib.csh && ln -sf /scratch/dmu/installer_wrf/WPS/geogrid && ln -sf /scratch/dmu/installer_wrf/WPS/geogrid/geogrid.exe && ln -sf /scratch/dmu/installer_wrf/WPS/metgrid && ln -sf /scratch/dmu/installer_wrf/WPS/metgrid/metgrid.exe && ln -sf /scratch/dmu/installer_wrf/WPS/ungrib && ln -sf /scratch/dmu/installer_wrf/WPS/ungrib/ungrib.exe 
+    cp /scratch/dmu/installer_wrf/WPS/namelist.wps /scratch/dmu/installer_wrf/WPS/util/plotgrids_new.ncl .
+    ln -sf /scratch/dmu/installer_wrf/WPS/ungrib/Variable_Tables/Vtable.ECMWF Vtable
     cd ..
 
     mkdir asimilasi_d01
     cd asimilasi_d01
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/external/crtm_2.3.0 .
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/da .
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/da/da_radiance .
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/run/radiance_info .
-    cp /home/abdul-habib/installer_wrf/WRFDA/var/run/be.dat.cv3 be.dat
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/build/da_wrfvar.exe .
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/build/da_update_bc.exe .
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/da/da_sound .
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/run/*TBL .
-    cp /home/abdul-habib/installer_wrf/WRFDA/var/test/update_bc/parame.in .
-    cp /home/abdul-habib/installer_wrf/WRFDA/var/run/VARBC.in .
-    cp /home/abdul-habib/installer_wrf/WRFDA/var/run/leapsec.dat .
-    cp /home/abdul-habib/installer_wrf/WRFDA/var/test/radiance/namelist.input namelist.input
-    cp /home/abdul-habib/installer_wrf/WRFDA/var/da/da_radar/da_radar_rf.inc .
-    cp /home/abdul-habib/installer_wrf/WRFDA/var/da/da_radar/da_radial_velocity.inc .
-    ln -sf /home/abdul-habib/installer_wrf/WRFDA/var/da/da_radar .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/external/crtm_2.3.0 .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da/da_radiance .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/run/radiance_info .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/run/be.dat.cv3 be.dat
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/build/da_wrfvar.exe .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/build/da_update_bc.exe .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da/da_sound .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/run/*TBL .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/test/update_bc/parame.in .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/run/VARBC.in .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/run/leapsec.dat .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/test/radiance/namelist.input namelist.input
+    cp /scratch/dmu/installer_wrf/WRFDA/var/da/da_radar/da_radar_rf.inc .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/da/da_radar/da_radial_velocity.inc .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da/da_radar .
     cd ..
     cp -a asimilasi_d01 asimilasi_d02
     cp -a asimilasi_d01 asimilasi_d03
 
     mkdir ARWpost
     cd ARWpost
-    ln -sf /home/abdul-habib/installer_wrf/ARWpost /home/abdul-habib/installer_wrf/ARWpost/src/ARWpost.exe .
-    ln -sf /home/abdul-habib/installer_wrf/ARWpost/src .
-    ln -sf /home/abdul-habib/installer_wrf/ARWpost/scripts .
-    cp /home/abdul-habib/installer_wrf/ARWpost/namelist.ARWpost namelist.ARWpost
+    ln -sf /scratch/dmu/installer_wrf/ARWpost /scratch/dmu/installer_wrf/ARWpost/src/ARWpost.exe .
+    ln -sf /scratch/dmu/installer_wrf/ARWpost/src .
+    ln -sf /scratch/dmu/installer_wrf/ARWpost/scripts .
+    cp /scratch/dmu/installer_wrf/ARWpost/namelist.ARWpost namelist.ARWpost
 chmod +x mkdir_kerja.sh
 
 ./mkdir_kerja.sh
@@ -321,7 +342,7 @@ sudo chmod +x make_folder_kerja
 # Jika running WRF#### Error di ungrib.exe
 ./ungrib.exe: error while loading shared libraries: libpng12.so.0 cannot open shared object file: No such file or directory
 How to fix it:
-sudo ln -sf /home/abdul-habib/installer_wrf/libraries/lib/libpng12.so.0 /usr/lib/x86_64-linux-gnu/libpng12.so.0
+sudo ln -sf /scratch/dmu/installer_wrf/libraries/lib/libpng12.so.0 /usr/lib/x86_64-linux-gnu/libpng12.so.0
 
 
 
