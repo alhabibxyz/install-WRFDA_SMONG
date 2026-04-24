@@ -227,7 +227,33 @@ export WRFPLUS_DIR=/home/abdul-habib/installer_wrf/WRFPLUS
 >>> pastikan terinstal: da_update_bc.exe, da_wrfvar.exe, gen_be*
 
 
+##Compile ARWpost
+wget https://www2.mmm.ucar.edu/wrf/src/ARWpost_V3.tar.gz
+tar -xvzf ARWpost_V3.tar.gz ARWpost
+cd ARWpost
+./configure
+#dan pilih nomor yang (gfortran compiler)
+cd /ARWpost/src
+cd src
+nano Makefile
+sesuaikan baris ini dengan menjadi seperti ini (dihapus dan dipastekan dengan ini):
+-L$(NETCDF)/lib -lnetcdf -lnetcdff -I$(NETCDF)/include -lnetcdf
+lalu save dan keluar ``(Ctrl + O -> enter -> Ctrl + X`
+cd ..
+cd /ARWpost
+nano configure.arwp
+sesuaikan baris ini dengan menjadi seperti ini:
+FFLAGS = -ffree-form -O -fno-second-underscore -fconvert=big-endian -frecord-marker=4 -fallow-argument-mismatch
+CFLAGS = -fPIC -m64
+CPP = /lib/cpp -P -traditional
+lalu save dan keluar
+./compile && ls -ls *.exe
+>>>pastikan tercreate: ARWpost.exe -> src/ARWpost.exe
+
+
 ##Buat folder kerja
+mkdir TASK
+cd TASK
 
 #Simpan kode dibawah ini sebagai script mkdir_kerja.sh
 nano mkdir_kerja.sh
@@ -271,12 +297,12 @@ Masukan kode dibawah ini dan simpan Ctrl+O -> Enter
     cp -a asimilasi_d01 asimilasi_d02
     cp -a asimilasi_d01 asimilasi_d03
 
-    mkdir arwpost
-    cd arwpost
-    ln -sf /home/habib/WRF/ARWpost /home/habib/WRF/ARWpost/src/ARWpost.exe .
-    ln -sf /home/habib/WRF/ARWpost/src .
-    ln -sf /home/habib/WRF/ARWpost/scripts .
-    cp /home/habib/WRF/ARWpost/namelist.ARWpost namelist.ARWpost
+    mkdir ARWpost
+    cd ARWpost
+    ln -sf /home/abdul-habib/installer_wrf/ARWpost /home/abdul-habib/installer_wrf/ARWpost/src/ARWpost.exe .
+    ln -sf /home/abdul-habib/installer_wrf/ARWpost/src .
+    ln -sf /home/abdul-habib/installer_wrf/ARWpost/scripts .
+    cp /home/abdul-habib/installer_wrf/ARWpost/namelist.ARWpost namelist.ARWpost
 chmod +x mkdir_kerja.sh
 
 ./mkdir_kerja.sh
