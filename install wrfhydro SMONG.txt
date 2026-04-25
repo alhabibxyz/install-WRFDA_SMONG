@@ -1,0 +1,374 @@
+# Installation based on https://github.com/HathewayWill/WRF-MOSIT/blob/main/WRF-MOSIT.sh 
+# Installation based on https://github.com/hanggoro-litbang/smong-wrf/blob/main/install
+# akses SMONG
+ssh abdul-habib@10.20.234.6
+
+# load module
+module load oneapi/tbb
+module load oneapi/compiler-rt
+module load oneapi/umf
+module load oneapi/compiler-intel-llvm/latest
+module load oneapi/mpi
+ml load hwloc
+ml load prun
+ml load ucx
+
+source /software/compilers/intel-oneapi/2025.2.1/setvars.sh --force
+
+# export env
+export CC=icx
+export CXX=icpx
+export FC=ifx
+export F77=ifx
+export F90=ifx
+export MPIFC=mpiifx
+export MPIF77=mpiifx
+export MPIF90=mpiifx
+export MPICC=mpiicx
+export MPICXX=mpiicpx
+export CFLAGS="-fPIC -fPIE -O3 -Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -Wno-incompatible-function-pointer-types -Wno-unused-command-line-argument"
+export FFLAGS=""
+export FCFLAGS=""
+export CXXFLAGS="-Wall -DHAVE_ISATTY"
+export DIR=/scratch/dmu/installer_wrf/libraries
+
+### Instal libraries
+# Zlib 
+mkdir /home/abdul-habib/installer_wrf/libraries
+cd /home/abdul-habib/installer_wrf/libraries
+wget -c https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
+tar xvzf zlib-1.3.1.tar.gz
+cd zlib-1.3.1
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/scratch/dmu/installer_wrf/libraries
+make
+make install
+
+#libpng (1.6.39)
+wget -c https://download.sourceforge.net/libpng/libpng-1.6.39.tar.gz
+tar xvzf libpng-1.6.39.tar.gz
+cd libpng-1.6.39
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/scratch/dmu/installer_wrf/libraries
+make
+make install
+
+# JasPer (1.900.1)
+wget -c https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compile_tutorial/tar_files/jasper-1.900.1.tar.gz
+tar xvzf jasper-1.900.1.tar.gz
+cd jasper-1.900.1
+export LDFLAGS=-L/scratch/dmu/installer_wrf/libraries/lib
+export CPPFLAGS=-I/scratch/dmu/installer_wrf/libraries/include
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx CFLAGS="-O3 -fPIC -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration -Wno-error=incompatible-function-pointer-types -Wno-incompatible-function-pointer-types" ./configure --prefix=/scratch/dmu/installer_wrf/libraries
+make
+make install
+
+* jika error kemungkinan masalahnya disini (bisa update jasper ver 2)
+# HDF5 (1.14.6)
+wget -c https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.6/hdf5-1.14.6.tar.gz
+tar xvzf hdf5-1.14.6.tar.gz
+cd hdf5-1.14.6
+export CFLAGS="-O3 -fPIC -Wno-unused-command-line-argument -Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types"
+export LDFLAGS="-L/scratch/dmu/installer_wrf/libraries/lib -Wl,-rpath,/scratch/dmu/installer_wrf/libraries/lib"
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx ./configure --prefix=/scratch/dmu/installer_wrf/libraries --with-zlib=/scratch/dmu/installer_wrf/libraries --enable-hl --enable-fortran --enable-parallel
+make
+make install
+
+# Parallel-NetCDF (1.14.1)
+wget -c https://parallel-netcdf.github.io/Release/pnetcdf-1.14.1.tar.gz
+tar xvzf pnetcdf-1.14.1.tar.gz
+cd pnetcdf-1.14.1
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx \
+./configure --prefix=/scratch/dmu/installer_wrf/libraries --enable-static
+make
+make install
+
+# NetCDF-C (4.9.3)
+wget -c https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.9.3.tar.gz
+tar xvzf v4.9.3.tar.gz
+cd netcdf-c-4.9.3
+export CPPFLAGS="-I$DIR/include"
+export LDFLAGS="-L$DIR/lib"
+export LD_LIBRARY_PATH="$DIR/lib:$LD_LIBRARY_PATH"
+
+CC=mpiicx FC=mpiifx F77=mpiifx F90=mpiifx CXX=mpiicpx \
+./configure \
+--prefix=$DIR \
+--enable-netcdf-4 \
+--disable-dap \
+--disable-pnetcdf
+make
+make install
+
+# NetCDF-Fortran (4.6.2)
+wget -c https://github.com/Unidata/netcdf-fortran/archive/refs/tags/v4.6.2.tar.gz
+tar xvzf v4.6.2.tar.gz
+cd netcdf-fortran-4.6.2
+
+export LD_LIBRARY_PATH=$DIR/lib:$LD_LIBRARY_PATH
+export HDF5_PLUGIN_PATH=/scratch/dmu/installer_wrf/libraries/hdf5/lib/plugin
+export CPPFLAGS="-I$DIR/include -I$DIR/include"
+export LDFLAGS="-L$DIR/lib -L$DIR/lib -Wl,-rpath,$DIR/lib -Wl,-rpath,$DIR/lib"
+export LIBS="-lnetcdf -lpnetcdf -lcurl -lhdf5_hl -lhdf5 -lz -lm -ldl -lgcc -lgfortran"
+./configure \
+--prefix=$DIR \
+CC=mpiicx FC=mpiifx F77=mpiifx \
+CPPFLAGS="-I$DIR/include" \
+LDFLAGS="-L$DIR/lib"
+make -j4
+make install
+
+#ioapi (optional)
+wget https://www.cmascenter.org/ioapi/download/ioapi-3.2.tar.gz
+env -i PATH=/usr/bin:/bin tar -zxvf ioapi-3.2.tar.gz
+cd iaopi
+export BIN=Linux2_x86_64ifort
+export CPLMODE=nocpl
+mkdir $BIN
+cp Makefile.cpl Makefile
+
+#edit Makefile (nanti dirapihin)
+sed -i '193s|-lnetcdff -lnetcdf| -L/scratch/dmu/installer_wrf/libraries/lib -lnetcdff -lnetcdf -lhdf5hl_fortran -lhdf5_fortran -lhdf5_hl -lhdf5 -ljpeg -lm -lz -lcurl|g' /scratch/dmu/installer_wrf/libraries/unduh_libraries/ioapi/Makefile
+sed -i '210s|${IODIR}/Makefile ${TOOLDIR}/Makefile| |g' /scratch/dmu/installer_wrf/libraries/unduh_libraries/ioapi/Makefile
+# edit file 
+vi ioapi/Makeinclude.Linux2_x86_64ifort
+# ubah bagian
+AR   = ar
+CC   = icx
+CXX  = icpx
+FC   = ifx -auto -warn notruncated_source -Bstatic -static-intel
+M4   = m4
+LINK = $(CC)
+# dan 
+OMPFLAGS  = -qopenmp      # for Intel compilers, version 15 or earlier
+OMPLIBS   = -qopenmp
+# edit file sortic.c
+vi /home/psiriset/raw/ioapi/ioapi/sortic.c
+# tambah
+#include  <stdlib.h>
+make configure
+make
+make install
+
+
+###Compile WRF
+##download WRF terbaru
+wget https://github.com/wrf-model/WRF/archive/refs/tags/v4.7.1.tar.gz (gagal)
+tar -xvf v4.7.1.tar.gz (gagal)
+mv WRF-4.7.1 WRF (gagal)
+git clone --recurse-submodule https://github.com/wrf-model/WRF.git
+git checkout v4.7.1
+
+export NETCDF=$DIR
+export PATH=$NETCDF/bin:$PATH
+export LD_LIBRARY_PATH=$NETCDF/lib:$LD_LIBRARY_PATH
+
+which nc-config
+>>> /scratch/dmu/installer_wrf/libraries/bin/nc-config
+cd WRF
+
+./clean -aa
+./configure
+# pilih 78 dan 1 
+vi configure.wrf # edit file configure.wrf
+
+#line 136 dan 137
+DM_FC           =       mpiifx -f90=$(SFC)
+DM_CC           =       mpiicx -cc=$(SCC)
+
+./compile em_real && ls -ls main/*.exe
+>>> pastikan terinstall : ndown.exe, real.exe, tc.exe, wrf.exe.
+
+###Compile WPS
+##download WPS latest
+wget https://github.com/wrf-model/WPS/archive/refs/tags/v4.6.0.tar.gz
+tar -xvf v4.6.0.tar.gz
+mv WPS-4.6.0 WPS
+cd WPS
+export WRF_DIR=/scratch/dmu/installer_wrf/WRF
+export jasper=/scratch/dmu/installer_wrf/libraries
+export JASPERLIB=/scratch/dmu/installer_wrf/libraries/lib
+export JASPERINC=/scratch/dmu/installer_wrf/libraries/include
+export NETCDF=/scratch/dmu/installer_wrf/libraries
+export PATH=$NETCDF/bin:$PATH
+export LD_LIBRARY_PATH=$NETCDF/lib:$LD_LIBRARY_PATH
+./configure
+# pilih 19
+# edit configure.wps
+# dan ubah mpif90|mpiifx dan mpicc|mpiicx
+./compile 2>&1 | tee compile.wps.log
+#bisa juga pakai
+./compile && ls -ls *.exe
+*khusus untuk inteloneapi 2025 https://forum.mmm.ucar.edu/threads/subsoil-level-not-found-in-ungrib-file.21884/
+>>> pastikan terinstall: geogrid.exe, netgrid.exe, ungrib.exe
+
+###Compile WRFPLUS
+git clone --recurse-submodule https://github.com/wrf-model/WRF.git WRFPLUS
+cd WRFPLUS
+git checkout v4.7.1
+./clean -aa
+
+export NETCDF=/scratch/dmu/installer_wrf/libraries
+export HDF5=/scratch/dmu/installer_wrf/libraries
+./configure wrfplus
+# pilih 40
+# edit configure.wrf
+# dan ubah mpif90|mpiifx dan mpicc|mpiicx
+./compile wrfplus 2>&1 | tee wrfplus.compile.log
+ls -ls main/*.exe
+>>> pastikan terinstall : wrfplus.exe
+
+###Compile WRFDA
+git clone --recurse-submodule https://github.com/wrf-model/WRF.git WRFDA
+cd WRFDA
+git checkout v4.7.1
+./clean -aa
+export DIR=/scratch/dmu/installer_wrf/libraries
+export NETCDF=$DIR
+export HDF5=$DIR
+export PATH=$DIR/bin:$PATH
+export LD_LIBRARY_PATH=$DIR/lib:$LD_LIBRARY_PATH
+export WRFPLUS_DIR=/scratch/dmu/installer_wrf/WRFPLUS
+
+./configure wrfda
+# pilih 78
+# edit configure.wrf
+# dan ubah mpif90|mpiifx dan mpicc|mpiicx
+./compile all_wrfvar 2>&1 | tee wrfda.compile.log
+#atau dengan
+./compile all_wrfvar && ls -ls var/build/*.exe
+>>> pastikan terinstal: da_update_bc.exe, da_wrfvar.exe, gen_be*
+
+###Compile WRF-Hydro
+git clone https://github.com/NCAR/wrf_hydro_nwm_public.git
+mv wrf_hydro_nwm_public WRF_HYDRO
+cd WRF_HYDRO
+mkdir build
+cd build
+export WRF_DIR=/home/abdul-habib/installer_wrf/WRF
+export HYDRO_DIR=/home/abdul-habib/installer_wrf/WRF_HYDRO
+
+export NETCDF=/scratch/dmu/installer_wrf/libraries
+export NETCDF_FORTRAN=/scratch/dmu/installer_wrf/libraries
+
+export PATH=$NETCDF/bin:$PATH
+export LD_LIBRARY_PATH=$NETCDF/lib:$LD_LIBRARY_PATH
+
+>>cek dengan: 
+which nc-config 
+which nf-config
+>> seharusnya: 
+/scratch/dmu/installer_wrf/libraries/bin/nc-config
+/scratch/dmu/installer_wrf/libraries/bin/nf-config
+
+cmake .. \
+ -DNETCDF_INCLUDE_DIR=/scratch/dmu/installer_wrf/libraries/include \
+ -DNETCDF_LIBRARY=/scratch/dmu/installer_wrf/libraries/lib/libnetcdf.so \
+ -DNETCDF_Fortran_LIBRARY=/scratch/dmu/installer_wrf/libraries/lib/libnetcdff.so \
+ -DNETCDF_MODULES=/scratch/dmu/installer_wrf/libraries/include \
+ -DCMAKE_Fortran_COMPILER=mpiifx \
+ -DCMAKE_C_COMPILER=mpiicx
+
+>>> Pastikan di direktori /scratch/dmu/installer_wrf/WRF_HYDRO/build/Run , terdapat beberapa file berikut:
+CHANPARM.TBL, GENPARM.TBL, hydro.namelist, HYDRO.TBL, Makefile, MPTABLE.TBL, namelist.hrldas, SOILPARM.TBL, wrf_hydro, wrf_hydro.exe, wrf_hydro_NoahMP
+
+
+###Compile ARWpost
+wget https://www2.mmm.ucar.edu/wrf/src/ARWpost_V3.tar.gz
+env -i PATH=/usr/bin:/bin tar -xvzf ARWpost_V3.tar.gz ARWpost
+cd ARWpost
+export NETCDF=/scratch/dmu/installer_wrf/libraries
+export NETCDF_FORTRAN=/scratch/dmu/installer_wrf/libraries
+
+export PATH=$NETCDF/bin:$PATH
+export LD_LIBRARY_PATH=$NETCDF/lib:$LD_LIBRARY_PATH
+
+./configure
+#dan pilih nomor yang (gfortran compiler:3)
+cd /ARWpost/src
+cd src
+nano Makefile
+#sesuaikan baris ini dengan menjadi seperti ini (dihapus dan dipastikan dengan ini):
+-L$(NETCDF)/lib -lnetcdf -lnetcdff -I$(NETCDF)/include -lnetcdf
+#lalu save dan keluar ``(Ctrl + O -> enter -> Ctrl + X`
+cd ..
+cd /ARWpost
+nano configure.arwp
+#sesuaikan baris ini dengan menjadi seperti ini:
+FFLAGS = -ffree-form -O -fno-second-underscore -fconvert=big-endian -frecord-marker=4 -fallow-argument-mismatch
+CFLAGS = -fPIC -m64
+CPP = /lib/cpp -P -traditional
+#lalu save dan keluar
+./compile && ls -ls *.exe
+>>>pastikan tercreate: ARWpost.exe -> src/ARWpost.exe
+
+
+##download WPS GEOG 
+wget -c https://www2.mmm.ucar.edu/wrf/src/wps_files/geog_complete.tar.gz
+env -i PATH=/usr/bin:/bin tar -xvf geog_complete.tar.gz WPS_GEOG
+
+##Buat folder kerja
+mkdir TASK
+cd TASK
+
+#Simpan kode dibawah ini sebagai script mkdir_kerja.sh
+nano mkdir_kerja.sh
+
+#Masukan kode dibawah ini dan simpan Ctrl+O -> Enter
+    #!/bin/bash
+    export usr=~
+    cd $usr
+    cd /home/habib/WRF/
+    mkdir TASK
+    cd TASK
+    mkdir data
+    mkdir output
+    mkdir wrf
+    cd wrf
+    ln -sf /scratch/dmu/installer_wrf/WRF/run/* .
+    ln -sf /scratch/dmu/installer_wrf/WPS/link_grib.csh && ln -sf /scratch/dmu/installer_wrf/WPS/geogrid && ln -sf /scratch/dmu/installer_wrf/WPS/geogrid/geogrid.exe && ln -sf /scratch/dmu/installer_wrf/WPS/metgrid && ln -sf /scratch/dmu/installer_wrf/WPS/metgrid/metgrid.exe && ln -sf /scratch/dmu/installer_wrf/WPS/ungrib && ln -sf /scratch/dmu/installer_wrf/WPS/ungrib/ungrib.exe 
+    cp /scratch/dmu/installer_wrf/WPS/namelist.wps /scratch/dmu/installer_wrf/WPS/util/plotgrids_new.ncl .
+    ln -sf /scratch/dmu/installer_wrf/WPS/ungrib/Variable_Tables/Vtable.ECMWF Vtable
+    cd ..
+
+    mkdir asimilasi_d01
+    cd asimilasi_d01
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/external/crtm_2.3.0 .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da/da_radiance .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/run/radiance_info .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/run/be.dat.cv3 be.dat
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/build/da_wrfvar.exe .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/build/da_update_bc.exe .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da/da_sound .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/run/*TBL .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/test/update_bc/parame.in .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/run/VARBC.in .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/run/leapsec.dat .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/test/radiance/namelist.input namelist.input
+    cp /scratch/dmu/installer_wrf/WRFDA/var/da/da_radar/da_radar_rf.inc .
+    cp /scratch/dmu/installer_wrf/WRFDA/var/da/da_radar/da_radial_velocity.inc .
+    ln -sf /scratch/dmu/installer_wrf/WRFDA/var/da/da_radar .
+    cd ..
+    cp -a asimilasi_d01 asimilasi_d02
+    cp -a asimilasi_d01 asimilasi_d03
+
+    mkdir ARWpost
+    cd ARWpost
+    ln -sf /scratch/dmu/installer_wrf/ARWpost /scratch/dmu/installer_wrf/ARWpost/src/ARWpost.exe .
+    ln -sf /scratch/dmu/installer_wrf/ARWpost/src .
+    ln -sf /scratch/dmu/installer_wrf/ARWpost/scripts .
+    cp /scratch/dmu/installer_wrf/ARWpost/namelist.ARWpost namelist.ARWpost
+chmod +x mkdir_kerja.sh
+
+./mkdir_kerja.sh
+sudo chmod +x make_folder_kerja
+
+# Jika running WRF#### Error di ungrib.exe
+./ungrib.exe: error while loading shared libraries: libpng12.so.0 cannot open shared object file: No such file or directory
+How to fix it:
+sudo ln -sf /scratch/dmu/installer_wrf/libraries/lib/libpng12.so.0 /usr/lib/x86_64-linux-gnu/libpng12.so.0
+
+
+
+
+
+
